@@ -17,9 +17,9 @@ exclude_so = []
 
 
 def getNdkSupportSoOptimize(ndkPath):
-    ndkPathSoList = os.listdir(ndkPath)
-    print("ndkPathSoList" + str(ndkPathSoList))
-    for item in ndkPathSoList:
+    ndk_path_so_list = os.listdir(ndkPath)
+    print("ndkPathSoList" + str(ndk_path_so_list))
+    for item in ndk_path_so_list:
         if item not in exclude_so and ".so" in item:
             exclude_so.append(item)
     print("exclude_so" + str(len(exclude_so)))
@@ -31,8 +31,8 @@ def parseSoDefinedSymbolOptimize(soPath):
     # readelf -Ws libcmaketest.so
     command = "readelf -Ws " + soPath + " | awk '$4~/FUNC/ || $4~/OBJECT/ || $4~/WEAK/ && $7!~/UND/ {print $8}'"
     result = os.popen(command)
-    resultContent = result.read()
-    for line in resultContent.split("\n"):
+    result_content = result.read()
+    for line in result_content.split("\n"):
         defined_symbol_item = line
         if len(defined_symbol_item) > 0 and defined_symbol_item not in defined_symbol:
             # print(defined_symbol_item_list[1])
@@ -50,8 +50,8 @@ def parseSoUndefinedSymbolOptimize(soPath):
     # https://pypi.org/project/elf-diff/
     command = "readelf -Ws " + soPath + " | awk '$7~/UND/ && $8!~/@LIBC/{print $8}'"
     result = os.popen(command)
-    resultContent = result.read()
-    for line in resultContent.split("\n"):
+    result_content = result.read()
+    for line in result_content.split("\n"):
         if len(line) > 0 and line not in undefined_symbol:
             undefined_symbol.append(line)
     return undefined_symbol
@@ -62,8 +62,8 @@ def parseSoDepsSoLibNameOptimize(soPath):
     # readelf -d libcmaketest.so | grep "NEEDED"
     command = "readelf -d " + soPath + " | grep 'NEEDED' | awk '{print $5}'"
     result = os.popen(command)
-    resultContent = result.read()
-    for line in resultContent.split("\n"):
+    result_content = result.read()
+    for line in result_content.split("\n"):
         deps_libs_item = line
         deps_libs_item = deps_libs_item.replace("[", "")
         deps_libs_item = deps_libs_item.replace("]", "")
@@ -80,9 +80,9 @@ def parseNoFoundUndefinedSymbolFunOptimize(check_undefined_symbol):
             if "_Z" in diff_symbol_item:
                 command = "c++filt" + " " + diff_symbol_item
                 result = os.popen(command)
-                resultContent = result.read()
-                resultContent = resultContent.replace("\n", "")
-                z.append(resultContent)
+                result_content = result.read()
+                result_content = result_content.replace("\n", "")
+                z.append(result_content)
         print(z)
         print("_Z undefined_symbol:" + str(len(z)))
 
@@ -115,24 +115,24 @@ def checkSoOptimize(soPath, soName, ndkSoPath):
     parseNoFoundUndefinedSymbolFunOptimize(check_undefined_symbol)
 
 
-def checkSoTreeOptimize(soPath, identifierName, soName, ndkSoPath, tree, merge_so_libs):
+def checkSoTreeOptimize(soPath, identifier_name, soName, ndkSoPath, tree, merge_so_libs):
     deps_libs = parseSoDepsSoLibNameOptimize(soPath + "/" + soName)
     so_data = dict()
     so_data["soName"] = soName
     so_data["soPath"] = soPath
     merge_so_libs[soName] = soPath
-    if identifierName == "Root":
-        identifierName = identifierName + "@" + soName
-        tree.create_node(tag=soName, identifier=identifierName, data=so_data)
+    if identifier_name == "Root":
+        identifier_name = identifier_name + "@" + soName
+        tree.create_node(tag=soName, identifier=identifier_name, data=so_data)
     else:
-        tree.create_node(tag=soName, identifier=identifierName + "@" + soName, parent=identifierName,
+        tree.create_node(tag=soName, identifier=identifier_name + "@" + soName, parent=identifier_name,
                          data=so_data)
-        identifierName = identifierName + "@" + soName
+        identifier_name = identifier_name + "@" + soName
     for lib in deps_libs:
         if lib not in exclude_so:
-            checkSoTreeOptimize(soPath, identifierName, lib, ndkSoPath, tree, merge_so_libs)
+            checkSoTreeOptimize(soPath, identifier_name, lib, ndkSoPath, tree, merge_so_libs)
         else:
-            checkSoTreeOptimize(ndkSoPath, identifierName, lib, ndkSoPath, tree, merge_so_libs)
+            checkSoTreeOptimize(ndkSoPath, identifier_name, lib, ndkSoPath, tree, merge_so_libs)
 
 
 def generateSoTreeOptimize(soPath, soName, ndkSoPath):
@@ -176,14 +176,14 @@ def generateSoTree(soPath, soName, ndkSoPath):
 def checkSoMd5(soPath):
     command = "md5 " + soPath + " | awk '{print $4}'"
     result = os.popen(command)
-    resultContent = result.read()
-    for line in resultContent.split("\n"):
+    result_content = result.read()
+    for line in result_content.split("\n"):
         print(line)
 
 
 def checkSoBuildId(soPath):
     command = "readelf -n " + soPath
     result = os.popen(command)
-    resultContent = result.read()
-    for line in resultContent.split("\n"):
+    result_content = result.read()
+    for line in result_content.split("\n"):
         print(line)

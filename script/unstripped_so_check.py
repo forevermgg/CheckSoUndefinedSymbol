@@ -28,8 +28,8 @@ def isSoStrippedByReadElf(soFilePath):
     # readelf -S libskia.so | grep debug | awk '{print $2}'
     command = "readelf -S " + soFilePath + " | grep debug | awk '{print $2}'"
     result = os.popen(command)
-    resultContent = result.read()
-    for line in resultContent.split("\n"):
+    result_content = result.read()
+    for line in result_content.split("\n"):
         print(line)
         if "debug_info" in line:
             print(line)

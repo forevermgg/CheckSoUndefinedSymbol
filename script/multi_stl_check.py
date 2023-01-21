@@ -5,18 +5,18 @@ from script.system_command import runSystemCommand
 
 def checkMultiSTL(soPathDir):
     if os.path.exists(soPathDir):
-        libFiles = []
+        lib_files = []
         for filename in os.listdir(soPathDir):
             print(filename)
             if filename.endswith(".so"):
-                libFiles.append(filename)
-        checkLibsResult = dict()
-        for lib in libFiles:
+                lib_files.append(filename)
+        check_libs_result = dict()
+        for lib in lib_files:
             if checkIsStlLinked(soPathDir + "/" + lib):
-                checkLibsResult[lib] = soPathDir + "/" + lib
+                check_libs_result[lib] = soPathDir + "/" + lib
 
-        if len(checkLibsResult) > 1:
-            print("checkMultiSTL True:" + str(checkLibsResult))
+        if len(check_libs_result) > 1:
+            print("checkMultiSTL True:" + str(check_libs_result))
             return True
         else:
             print("checkMultiSTL False")
