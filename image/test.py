@@ -1,4 +1,7 @@
 import os
+import PIL.Image as Image
+
+from nsfw import classify
 
 
 def checkImageMagick(command):
@@ -19,7 +22,6 @@ checkImageMagick(command)
 command = "convert " + './test.jpg' + " -rotate 45 test_rotate_45.jpg"
 checkImageMagick(command)
 
-
 command = "convert " + './test.jpg' + " -resize 50% test_resize_50.jpg"
 checkImageMagick(command)
 
@@ -27,3 +29,9 @@ command = "convert " + './test.jpg' + " -resize 150% test_resize_150.jpg"
 checkImageMagick(command)
 
 checkImageMagick("convert " + './test.jpg' + " ./test.png")
+
+image = Image.open("./test.jpg")
+sfw, nsfw = classify(image)
+
+print("SFW Probability: {}".format(sfw))
+print("NSFW Probability: {}".format(nsfw))
